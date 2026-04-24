@@ -1,0 +1,51 @@
+  train.py        
+                                                                                                                                                                                                                                                                             
+  from sklearn.model_selection import train_test_split
+  from sklearn.preprocessing import StandardScaler
+  from sklearn.linear_model import LogisticRegression                                                                                                                                                                                                                        
+  import joblib
+                                                                                                                                                                                                                                                                             
+  CONTINUOUS = ['age', 'trestbps', 'chol', 'thalach', 'oldpeak']                                                                                                                                                                                                             
+   
+  # 1. Split FIRST — before touching the scaler                                                                                                                                                                                                                              
+  X_train, X_test, y_train, y_test = train_test_split(
+      X, y, test_size=0.2, stratify=y, random_state=42                                                                                                                                                                                                                       
+  )               
+
+  # 2. Fit scaler on TRAIN only; transform train and test                                                                                                                                                                                                                    
+  scaler = StandardScaler()
+  X_train_scaled = X_train.copy()                                                                                                                                                                                                                                            
+  X_test_scaled  = X_test.copy()                                                                                                                                                                                                                                             
+  X_train_scaled[CONTINUOUS] = scaler.fit_transform(X_train[CONTINUOUS])
+  X_test_scaled[CONTINUOUS]  = scaler.transform(X_test[CONTINUOUS])   # transform, NOT fit_transform                                                                                                                                                                         
+                                                                                                                                                                                                                                                                             
+  # 3. Train model on scaled train                                                                                                                                                                                                                                           
+  model = LogisticRegression(max_iter=1000, random_state=42)                                                                                                                                                                                                                 
+  model.fit(X_train_scaled, y_train)                                                                                                                                                                                                                                         
+                  
+  # 4. Save scaler OBJECT + model + the column list it was fit on                                                                                                                                                                                                            
+  joblib.dump(scaler,     'scaler.joblib')
+  joblib.dump(model,      'model.joblib')                                                                                                                                                                                                                                    
+  joblib.dump(CONTINUOUS, 'scaler_columns.joblib')   # explicit — prevents drift
+                                                                                                                                                                                                                                                                             
+  predict.py      
+                                                                                                                                                                                                                                                                             
+  import joblib   
+  import pandas as pd
+
+  scaler     = joblib.load('scaler.joblib')                                                                                                                                                                                                                                  
+  model      = joblib.load('model.joblib')
+  CONTINUOUS = joblib.load('scaler_columns.joblib')                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                             
+  patient = {'age': 55, 'sex': 1, 'cp': 2, 'trestbps': 140, 'chol': 250,                                                                                                                                                                                                     
+             'fbs': 0, 'restecg': 1, 'thalach': 160, 'exang': 0,                                                                                                                                                                                                             
+             'oldpeak': 1.5, 'slope': 2, 'ca': 0, 'thal': 2}                                                                                                                                                                                                                 
+                  
+  # Must be a DataFrame, same column names, same column ORDER as training X                                                                                                                                                                                                  
+  X_new = pd.DataFrame([patient])[X_train.columns]   # enforce column order
+                                                                                                                                                                                                                                                                             
+  # Apply the SAME scaler to the SAME columns — transform only, never fit                                                                                                                                                                                                    
+  X_new[CONTINUOUS] = scaler.transform(X_new[CONTINUOUS])                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                             
+  pred  = model.predict(X_new)[0]                                                                                                                                                                                                                                            
+  proba = model.predict_proba(X_new)[0]
