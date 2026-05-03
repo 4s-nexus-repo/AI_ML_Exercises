@@ -116,7 +116,6 @@ def start_ngrok(port: int = 8000):
         print(f"  Local URL  : http://127.0.0.1:{port}")
         print(f"  Public URL : {public_url}")
         print(f"  Swagger UI : {public_url}/docs")
-        print(f"  Share this with your instructor: {public_url}/docs")
         print("=" * 55 + "\n")
 
         return public_url
