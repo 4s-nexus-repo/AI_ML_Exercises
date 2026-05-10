@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 
 
 # Load dataset
-df = pd.read_csv("heart.csv")
+df = pd.read_csv("data/heart.csv")
 
 X = df.drop("target", axis=1)
 y = df["target"]
@@ -34,19 +34,19 @@ print("Model saved!")
 
 # Test prediction
 sample = pd.DataFrame({
-    'age': [55],
+    'age': [52],
     'sex': [1],
-    'cp': [2],
-    'trestbps': [120],
-    'chol': [240],
+    'cp': [0],
+    'trestbps': [125],
+    'chol': [212],
     'fbs': [0],
     'restecg': [1],
-    'thalach': [165],
+    'thalach': [168],
     'exang': [0],
-    'oldpeak': [0.5],
+    'oldpeak': [1],
     'slope': [2],
-    'ca': [0],
-    'thal': [2]
+    'ca': [2],
+    'thal': [3]
 })
 
 pred = pipeline.predict(sample)
