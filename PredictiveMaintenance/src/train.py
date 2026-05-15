@@ -1,8 +1,10 @@
+import joblib
 import numpy as np
 import pandas as pd
-
+from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from evaluation import evaluate_model
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
@@ -26,6 +28,7 @@ print(df.shape)
 df = df.drop("timestamp", axis=1)
 # Features and target
 X = df.drop("machine_failure", axis=1)
+print(X.columns)
 y = df["machine_failure"]
 
 # Train-test split
@@ -60,33 +63,46 @@ models = {
     )
 }
 # Train and evaluate models
+
 results = {}
+pipelines = {}
 
 for name, model in models.items():
 
     print(f"\nTraining {name}...")
 
-    # Train model
-    model.fit(X_train_scaled, y_train)
+    # Create pipeline
+    pipeline = Pipeline([
+        ("scaler", StandardScaler()),
+        ("model", model)
+    ])
 
-    # Predictions
-    y_pred = model.predict(X_test_scaled)
+    # Train pipeline
+    pipeline.fit(X_train, y_train)
+
+    # Predict
+    y_pred = pipeline.predict(X_test)
 
     # Accuracy
-    accuracy = accuracy_score(y_test, y_pred)
+    accuracy = evaluate_model(y_test, y_pred, name)
 
     # Store result
     results[name] = accuracy
+    pipelines[name] = pipeline
 
-    print(f"{name} Accuracy: {accuracy:.4f}")
-
-    # Classification report
-    print(classification_report(y_test, y_pred))
-
+    
     #best model by accuracy
     print("\nModel Accuracy Summary:")
 for name, accuracy in results.items():
     print(f"{name}: {accuracy:.4f}")
 
 best_model = max(results, key=results.get)
+best_pipeline = pipelines[best_model]
 print(f"\nBest Model: {best_model} with accuracy {results[best_model]:.4f}")
+
+# Save best model
+# Save best pipeline
+joblib.dump(best_pipeline, "models/best_pipeline.joblib")
+
+print("\nBest pipeline saved as: models/best_pipeline.joblib")
+
