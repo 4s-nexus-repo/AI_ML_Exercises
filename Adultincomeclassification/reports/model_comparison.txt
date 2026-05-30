@@ -1,0 +1,6 @@
+ML Project 02 - Adult Income Classification
+TensorFlow/Keras vs PyTorch Comparison
+
+                          Model  Accuracy  Precision   Recall  F1 Score
+TensorFlow/Keras Neural Network  0.855673   0.713605 0.669005  0.690586
+         PyTorch Neural Network  0.853677   0.722988 0.635842  0.676620

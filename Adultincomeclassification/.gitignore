@@ -1,0 +1,16 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+venv/
+
+# Trained model files
+models/*.keras
+models/*.pth
+models/*.joblib
+
+# System files
+.DS_Store
+Thumbs.db
