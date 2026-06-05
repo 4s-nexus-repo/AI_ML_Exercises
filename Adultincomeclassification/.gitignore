@@ -14,3 +14,6 @@ models/*.joblib
 # System files
 .DS_Store
 Thumbs.db
+# Jupyter checkpoints
+.ipynb_checkpoints/
+notebook/.ipynb_checkpoints/
